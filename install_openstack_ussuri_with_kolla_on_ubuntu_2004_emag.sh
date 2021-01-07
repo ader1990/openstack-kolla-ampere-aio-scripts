@@ -38,6 +38,8 @@ kolla-genpwd
 #  neutron_external_interface: #Your external interface
 #  enable_cinder: "yes"
 #  enable_cinder_backend_nfs: "yes"
+#  enable_barbican: "yes"
+#  enable_octavia: "yes"
 
 # if there are multiple deployments with kolla,
 # set another keepalived_virtual_router_id
@@ -52,6 +54,19 @@ sudo mkdir /kolla_nfs
 echo "/kolla_nfs $CINDER_NFS_ACCESS(rw,sync,no_root_squash)" | sudo tee -a /etc/exports
 echo "$CINDER_NFS_HOST:/kolla_nfs" | sudo tee -a /etc/kolla/config/nfs_shares
 sudo systemctl restart nfs-kernel-server
+
+# Octavia setup
+# Follow the "Creating the Certificate Authorities" section of the Octavia documentation.
+# Note: use the password retrieved above to protect the keys for both CAs
+https://docs.openstack.org/octavia/victoria/admin/guides/certificates.html
+
+# Let's copy the certificates to the location excpected by kolla-ansible:
+sudo mkdir -p /etc/kolla/config/octavia
+sudo cp client_ca/certs/ca.cert.pem /etc/kolla/config/octavia/client_ca.cert.pem
+sudo cp server_ca/certs/ca.cert.pem /etc/kolla/config/octavia/server_ca.cert.pem
+sudo cp server_ca/private/ca.key.pem /etc/kolla/config/octavia/server_ca.key.pem
+sudo cp client_ca/private/client.cert-and-key.pem /etc/kolla/config/octavia/client.cert-and-key.pem
+sudo chown -R $USER:$USER /etc/kolla/config/octavia
 
 kolla-ansible -i ./all-in-one prechecks
 kolla-ansible -i ./all-in-one bootstrap-servers
