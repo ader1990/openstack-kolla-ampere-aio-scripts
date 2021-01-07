@@ -36,8 +36,8 @@ kolla-genpwd
 #  kolla_internal_vip_address: # An unallocated IP address in your network
 #  network_interface: # your management interface
 #  neutron_external_interface: #Your external interface
-# enable_cinder: "yes"
-# enable_cinder_backend_nfs: "yes"
+#  enable_cinder: "yes"
+#  enable_cinder_backend_nfs: "yes"
 
 # if there are multiple deployments with kolla,
 # set another keepalived_virtual_router_id
