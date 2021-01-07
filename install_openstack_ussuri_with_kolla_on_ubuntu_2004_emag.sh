@@ -2,6 +2,7 @@
 sudo apt update
 sudo apt install -y qemu-kvm docker-ce
 sudo apt install -y python3-dev libffi-dev gcc libssl-dev python3-venv
+sudo apt install -y nfs-kernel-server
 
 sudo usermod -aG docker $USER
 newgrp docker
@@ -16,7 +17,7 @@ pip install -U pip
 pip install 'ansible<2.10'
 pip install kolla-ansible
 
-sudo mkdir -p /etc/kolla
+sudo mkdir -p /etc/kolla/config
 sudo cp -r venv/share/kolla-ansible/etc_examples/kolla/* /etc/kolla
 sudo chown -R $USER:$USER /etc/kolla
 cp venv/share/kolla-ansible/ansible/inventory/* .
@@ -35,10 +36,22 @@ kolla-genpwd
 #  kolla_internal_vip_address: # An unallocated IP address in your network
 #  network_interface: # your management interface
 #  neutron_external_interface: #Your external interface
+# enable_cinder: "yes"
+# enable_cinder_backend_nfs: "yes"
 
 # if there are multiple deployments with kolla,
 # set another keepalived_virtual_router_id
 # keepalived_virtual_router_id = 101
+
+# Cinder NFS setup
+# Your local IP
+CINDER_NFS_HOST="10.0.0.1"
+# Replace with your local network CIDR if you plan to add more nodes
+CINDER_NFS_ACCESS=$CINDER_NFS_HOST
+sudo mkdir /kolla_nfs
+echo "/kolla_nfs $CINDER_NFS_ACCESS(rw,sync,no_root_squash)" | sudo tee -a /etc/exports
+echo "$CINDER_NFS_HOST:/kolla_nfs" | sudo tee -a /etc/kolla/config/nfs_shares
+sudo systemctl restart nfs-kernel-server
 
 kolla-ansible -i ./all-in-one prechecks
 kolla-ansible -i ./all-in-one bootstrap-servers
