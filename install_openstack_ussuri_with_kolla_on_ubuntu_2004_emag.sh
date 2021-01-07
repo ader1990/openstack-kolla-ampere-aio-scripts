@@ -86,9 +86,6 @@ export EXT_NET_RANGE='start=10.0.2.150,end=10.0.2.199'
 export EXT_NET_GATEWAY='10.0.2.1'
 ./venv/share/kolla-ansible/init-runonce
 
-# Change the public network subnet to an IP range suitable for your environment
-openstack subnet set pub-subnet --allocation-pool start=<ip-address>,end=<ip-address> --dns-nameserver <dns-nameserver> --gateway <gateway>
-
 # Create a demo VM
 openstack server create --image cirros --flavor m1.tiny --key-name mykey --network demo-net demo1
 
